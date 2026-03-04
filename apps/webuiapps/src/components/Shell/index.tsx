@@ -49,10 +49,15 @@ const DESKTOP_APPS = getDesktopApps().map((app) => ({
   IconComp: ICON_MAP[app.icon] || Circle,
 }));
 
+const DEFAULT_WALLPAPER =
+  'https://cdn.openroom.ai/public-cdn-s3-us-west-2/talkie-op-img/image/437110625_1772619481913_Aoi_default_Commander_Room.jpg';
+
 const Shell: React.FC = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [reportEnabled, setReportEnabled] = useState(true);
   const [lang, setLang] = useState<'en' | 'zh'>('en');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [wallpaper, setWallpaper] = useState(DEFAULT_WALLPAPER);
   const windows = useWindows();
 
   const handleToggleReport = useCallback(() => {
@@ -76,7 +81,18 @@ const Shell: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.shell}>
+    <div
+      className={styles.shell}
+      style={
+        wallpaper
+          ? {
+              backgroundImage: `url(${wallpaper})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+          : undefined
+      }
+    >
       {/* Desktop with app icons */}
       <div className={styles.desktop}>
         <div className={styles.iconGrid}>
