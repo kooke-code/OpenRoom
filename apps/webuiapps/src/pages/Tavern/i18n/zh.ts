@@ -1,0 +1,51 @@
+export default {
+  topBar: {
+    import: '导入',
+    newChat: '新对话',
+    settings: '设置',
+  },
+  sprite: {
+    noCharacter: '未选择角色',
+    emotion: '情绪',
+  },
+  chat: {
+    placeholder: '输入消息...',
+    send: '发送',
+    emptyState: '导入角色卡开始对话',
+    emptySession: '开始新的对话',
+    greeting: '问候语',
+  },
+  import: {
+    title: '导入角色卡',
+    selectPng: '选择角色卡 PNG 文件',
+    selectSprites: '选择情绪立绘文件夹（可选）',
+    selectQuickReplies: '选择快捷回复 JSON（可选）',
+    preview: '预览',
+    characterName: '角色名',
+    worldBookEntries: '世界书条目',
+    regexScripts: '正则脚本',
+    confirm: '确认导入',
+    cancel: '取消',
+    parsing: '正在解析角色卡...',
+    error: '角色卡解析失败',
+    noData: 'PNG 文件中未找到角色数据',
+    dragDrop: '拖放 PNG 文件到此处，或点击选择',
+    spritesLoaded: '已加载 {{count}} 张立绘',
+    quickRepliesLoaded: '已加载 {{count}} 条快捷回复',
+  },
+  settings: {
+    title: '设置',
+    userName: '你的名字',
+    userNamePlaceholder: '输入你的名字',
+    save: '保存',
+    close: '关闭',
+  },
+  quickReply: {
+    inputPlaceholder: '输入补充内容...',
+    send: '发送',
+  },
+  message: {
+    you: '你',
+    system: '系统',
+  },
+};

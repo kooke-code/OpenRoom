@@ -13,7 +13,13 @@
   "bugs": {
     "url": "https://github.com/MiniMax-AI/OpenRoom/issues"
   },
-  "keywords": ["vibe-coding", "react", "ai-agent", "desktop-environment", "micro-frontend"],
+  "keywords": [
+    "vibe-coding",
+    "react",
+    "ai-agent",
+    "desktop-environment",
+    "micro-frontend"
+  ],
   "scripts": {
     "commitlint": "commitlint --config .commitlintrc -e -V",
     "lint-staged": "lint-staged",
@@ -32,12 +38,12 @@
     "@types/node": "^20.8.7",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/three": "^0.170.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-legacy": "5.4.1",
     "@vitejs/plugin-react-swc": "^3.6.0",
     "autoprefixer": "^10.4.16",
-    "@types/three": "^0.170.0",
     "css-loader": "^6.7.3",
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
@@ -77,6 +83,7 @@
     "i18next": "^23.11.4",
     "intl-pluralrules": "^2.0.1",
     "lucide-react": "^0.563.0",
+    "marked": "^17.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^14.1.1",

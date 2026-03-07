@@ -148,6 +148,16 @@ const APP_STATIC_REGISTRY: AppStaticDef[] = [
     color: '#FAEA5F',
     defaultSize: { width: 1100, height: 750 },
   },
+  {
+    appId: 15,
+    appName: 'tavern',
+    route: '/tavern',
+    displayName: 'Tavern',
+    sourceDir: 'Tavern',
+    icon: 'MessageCircle',
+    color: '#7660FF',
+    defaultSize: { width: 960, height: 680 },
+  },
 ];
 
 // OS actions are built-in system actions, not from meta.yaml

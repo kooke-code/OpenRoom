@@ -1,0 +1,51 @@
+export default {
+  topBar: {
+    import: 'Import',
+    newChat: 'New Chat',
+    settings: 'Settings',
+  },
+  sprite: {
+    noCharacter: 'No Character',
+    emotion: 'Emotion',
+  },
+  chat: {
+    placeholder: 'Type a message...',
+    send: 'Send',
+    emptyState: 'Import a character card to start chatting',
+    emptySession: 'Start a new conversation',
+    greeting: 'Greeting',
+  },
+  import: {
+    title: 'Import Character Card',
+    selectPng: 'Select Character Card PNG',
+    selectSprites: 'Select Emotion Sprites Folder (Optional)',
+    selectQuickReplies: 'Select Quick Replies JSON (Optional)',
+    preview: 'Preview',
+    characterName: 'Character Name',
+    worldBookEntries: 'World Book Entries',
+    regexScripts: 'Regex Scripts',
+    confirm: 'Confirm Import',
+    cancel: 'Cancel',
+    parsing: 'Parsing character card...',
+    error: 'Failed to parse character card',
+    noData: 'No character data found in PNG',
+    dragDrop: 'Drag & drop PNG file here or click to select',
+    spritesLoaded: '{{count}} sprites loaded',
+    quickRepliesLoaded: '{{count}} quick replies loaded',
+  },
+  settings: {
+    title: 'Settings',
+    userName: 'Your Name',
+    userNamePlaceholder: 'Enter your name',
+    save: 'Save',
+    close: 'Close',
+  },
+  quickReply: {
+    inputPlaceholder: 'Enter additional content...',
+    send: 'Send',
+  },
+  message: {
+    you: 'You',
+    system: 'System',
+  },
+};

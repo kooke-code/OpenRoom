@@ -1,0 +1,175 @@
+app_id: 15
+app_name: tavern
+app_display_name: Tavern
+version: "1.0.0"
+description: >
+  AI character roleplay chat app compatible with SillyTavern character cards.
+  
+  ## Data Structure
+  - characters/{id}.json — Character persona text (name, description, personality, scenario, system_prompt, etc.)
+  - worldbook/{id}.json — World book entries array (Agent reads on demand for keyword matching)
+  - sessions/{id}.json — Conversation history (messages array with role/content)
+  - media/{id}.json — FRONTEND ONLY, DO NOT READ (images, regex scripts, quick replies)
+  - state.json — Active characterId, sessionId, userName
+  
+  ## Roleplay Workflow (CRITICAL)
+  When you receive a SEND_MESSAGE action from the user:
+  1. Read the character card: characters/{characterId}.json
+  2. Read the session file: sessions/{sessionId}.json to get full conversation history
+  3. Read the world book: worldbook/{characterId}.json
+  4. Use the character's `description`, `personality`, `scenario`, `system_prompt` as your roleplay persona
+  5. Scan recent conversation text against world book `keys`, inject matched entry `content` into context (constant entries always, selective entries require secondary_keys match too)
+  6. Replace {{user}} with state.json's `userName`, {{char}} with the character's `name`
+  6. If `mes_example` exists, use it as example dialogue style reference
+  7. Generate an in-character response following the character's persona and writing style
+  8. Append your response as a new message (role: "assistant") to the session's messages array
+  9. Write the updated session back to sessions/{sessionId}.json
+  10. Send ADD_MESSAGE action with filePath pointing to the updated session file
+  
+  ## Important Notes
+  - Keep {{user}} and {{char}} template variables in message content — the frontend replaces them at display time
+  - The character's regex_scripts will transform your output for display (e.g. <cm>...</cm> tags become styled chat bubbles)
+  - Follow the character's writing style from description and mes_example
+  - Do NOT break character. Stay in the role defined by the character card at all times.
+
+displayDesc: >
+  Import SillyTavern character cards and have immersive AI roleplay conversations.
+  Features emotion sprites, regex script rendering, world book context injection,
+  and quick reply buttons.
+
+actions:
+  - type: SEND_MESSAGE
+    name: Send Message
+    description: >
+      User sent a message in the active conversation. You MUST respond in character:
+      1. Read characters/{characterId}.json for persona
+      2. Read sessions/{sessionId}.json for conversation history
+      3. Generate an in-character response
+      4. Append the response to the session file
+      5. Send ADD_MESSAGE with the updated session filePath
+    params:
+      - name: sessionId
+        type: string
+        description: Active session ID — read sessions/{sessionId}.json
+        required: true
+      - name: content
+        type: string
+        description: The user's message text
+        required: true
+      - name: characterId
+        type: string
+        description: Active character ID — read characters/{characterId}.json for persona
+        required: true
+  - type: NEW_SESSION
+    name: New Session
+    description: >
+      A new conversation session was created for a character. The greeting message
+      from the character's first_mes is already included.
+    params:
+      - name: characterId
+        type: string
+        description: Character ID
+        required: true
+      - name: sessionId
+        type: string
+        description: New session ID
+        required: true
+  - type: SWITCH_CHARACTER
+    name: Switch Character
+    description: >
+      User switched to a different imported character.
+    params:
+      - name: characterId
+        type: string
+        description: Character ID switched to
+        required: true
+  - type: IMPORT_CHARACTER
+    name: Import Character
+    description: >
+      User imported a new character card. Character data is saved to characters/{characterId}.json.
+    params:
+      - name: characterId
+        type: string
+        description: Newly imported character ID
+        required: true
+  - type: CREATE_CHARACTER
+    name: Create Character
+    description: >
+      Agent has written a new character JSON file. Frontend refreshes character list.
+    params:
+      - name: filePath
+        type: string
+        description: Path to the new character JSON file
+        required: true
+  - type: UPDATE_CHARACTER
+    name: Update Character
+    description: >
+      Agent has updated an existing character JSON file. Frontend refreshes.
+    params:
+      - name: filePath
+        type: string
+        description: Path to the updated character JSON file
+        required: true
+  - type: DELETE_CHARACTER
+    name: Delete Character
+    description: >
+      Agent has deleted a character. Frontend refreshes character list.
+    params:
+      - name: characterId
+        type: string
+        description: Deleted character ID
+        required: true
+  - type: CREATE_SESSION
+    name: Create Session
+    description: >
+      Agent has created a new session JSON file. Frontend refreshes session list.
+    params:
+      - name: filePath
+        type: string
+        description: Path to new session JSON file
+        required: true
+  - type: ADD_MESSAGE
+    name: Add Message
+    description: >
+      Agent has appended a message to a session file. Frontend reads the updated
+      session and refreshes the message list. This is how the Agent delivers
+      its in-character response after receiving SEND_MESSAGE.
+    params:
+      - name: filePath
+        type: string
+        description: Path to the updated session JSON file
+        required: true
+  - type: DELETE_SESSION
+    name: Delete Session
+    description: >
+      Agent has deleted a session. Frontend refreshes session list.
+    params:
+      - name: sessionId
+        type: string
+        description: Deleted session ID
+        required: true
+  - type: REFRESH_CHARACTERS
+    name: Refresh Characters
+    description: Reload all character data from cloud storage.
+    params:
+      - name: focusId
+        type: string
+        description: Character ID to focus after refresh
+        required: false
+  - type: REFRESH_SESSIONS
+    name: Refresh Sessions
+    description: Reload all session data from cloud storage.
+    params:
+      - name: focusId
+        type: string
+        description: Session ID to focus after refresh
+        required: false
+  - type: REFRESH_MESSAGES
+    name: Refresh Messages
+    description: Reload the current active session messages.
+    params: []
+  - type: SYNC_STATE
+    name: Sync State
+    description: >
+      Agent has updated state.json. Frontend reads and applies new state.
+    params: []

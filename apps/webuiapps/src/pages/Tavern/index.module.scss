@@ -1,0 +1,967 @@
+@use './styles/variables.module' as *;
+
+.tavern {
+  // Define CSS variable fallbacks for iframe isolation
+  --bg-1: #121214;
+  --bg-2: #1c1d20;
+  --bg-3: #282a2a;
+  --grouped-4: #333333;
+  --grouped-5: #404040;
+  --color-yellow: #faea5f;
+  --color-yellow-10: rgba(250, 234, 95, 0.1);
+  --color-yellow-light: #fffdbb;
+  --color-purple: #7660ff;
+  --color-cyan: #2ea7ff;
+  --color-red: #ff3f4d;
+  --color-blue: #6083ff;
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  --text-quaternary: rgba(255, 255, 255, 0.5);
+  --text-placeholder: rgba(255, 255, 255, 0.35);
+
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background: var(--bg-1);
+  color: var(--text-primary);
+  font-family: $font-family;
+  font-size: $font-size-base;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.loading {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--color-yellow);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ========================================
+// Sprite Panel
+// ========================================
+.spritePanel {
+  width: $sprite-width;
+  flex-shrink: 0;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(170deg, #1a1530 0%, #0f0e18 50%, #1a1025 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(118, 96, 255, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(250, 234, 95, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+.spriteImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: opacity $duration-slow $easing;
+}
+
+.spriteFallback {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(118, 96, 255, 0.12);
+  border: 2px solid rgba(118, 96, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 700;
+  color: rgba(118, 96, 255, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.spriteOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 16px 20px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.5) 60%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+.spriteCharName {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.spriteEmotion {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spriteEmotionDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-yellow);
+  box-shadow: 0 0 6px rgba(250, 234, 95, 0.4);
+}
+
+// ========================================
+// Chat Panel
+// ========================================
+.chatPanel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-1);
+}
+
+// ========================================
+// Top Bar
+// ========================================
+.topBar {
+  height: $topbar-height;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--bg-2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 4px;
+}
+
+.topBarTitle {
+  flex: 1;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.topBarBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: $radius-sm;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background $duration-fast $easing,
+    color $duration-fast $easing;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+// ========================================
+// Message List
+// ========================================
+.messageList {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-1);
+}
+
+.messageList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.messageList::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messageList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-quaternary);
+  padding: 40px;
+  text-align: center;
+
+  p {
+    font-size: $font-size-base;
+    line-height: 1.5;
+  }
+}
+
+.emptyIcon {
+  opacity: 0.2;
+}
+
+.emptyImportBtn {
+  margin-top: 4px;
+  padding: 8px 24px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba(118, 96, 255, 0.3);
+  background: rgba(118, 96, 255, 0.1);
+  color: var(--color-purple);
+  font-size: $font-size-base;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $duration-fast $easing;
+
+  &:hover {
+    background: rgba(118, 96, 255, 0.18);
+    border-color: rgba(118, 96, 255, 0.4);
+  }
+}
+
+// ========================================
+// Message Bubble
+// ========================================
+.messageBubble {
+  display: flex;
+  gap: 10px;
+  max-width: 82%;
+  animation: fadeIn $duration-normal $easing;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.messageBubble.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.messageBubble.assistant {
+  align-self: flex-start;
+}
+
+.messageBubble.system {
+  align-self: center;
+  max-width: 90%;
+}
+
+.bubbleAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  overflow: hidden;
+}
+
+.bubbleAvatar.user {
+  background: rgba(250, 234, 95, 0.15);
+  color: var(--color-yellow);
+}
+
+.bubbleAvatar.assistant {
+  background: rgba(118, 96, 255, 0.15);
+  color: var(--color-purple);
+}
+
+.bubbleAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bubbleContent {
+  padding: 10px 14px;
+  border-radius: $radius-lg;
+  line-height: 1.65;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.bubbleContent.user {
+  background: rgba(250, 234, 95, 0.12);
+  border: 1px solid rgba(250, 234, 95, 0.15);
+  color: var(--text-primary);
+  border-bottom-right-radius: $radius-sm;
+}
+
+.bubbleContent.assistant {
+  background: var(--bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  border-bottom-left-radius: $radius-sm;
+}
+
+.bubbleContent.system {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-tertiary);
+  font-size: $font-size-sm;
+  text-align: center;
+  border-radius: $radius-md;
+}
+
+.bubbleHtml {
+  :global {
+    .stc-card {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: $radius-md;
+      padding: 10px 12px;
+      margin: 8px 0;
+      border-left: 3px solid var(--color-purple);
+    }
+
+    .stc-label {
+      font-size: $font-size-xs;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .stc-value {
+      font-size: $font-size-base;
+      color: var(--text-primary);
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: $radius-sm;
+    }
+
+    img[src=''],
+    img:not([src]) {
+      display: none;
+    }
+
+    details {
+      margin: 8px 0;
+
+      summary {
+        cursor: pointer;
+        color: var(--text-secondary);
+      }
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    th,
+    td {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 4px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
+}
+
+.bubbleMarkdown {
+  :global {
+    strong,
+    b {
+      font-weight: 600;
+    }
+    em,
+    i {
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.88em;
+    }
+    pre {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 10px;
+      border-radius: $radius-sm;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    blockquote {
+      border-left: 3px solid var(--color-purple);
+      margin: 8px 0;
+      padding-left: 12px;
+      color: var(--text-secondary);
+    }
+    p {
+      margin: 0 0 8px 0;
+    }
+    p:last-child {
+      margin-bottom: 0;
+    }
+    ul,
+    ol {
+      margin: 4px 0;
+      padding-left: 1.5em;
+    }
+    a {
+      color: var(--color-cyan);
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// ========================================
+// Iframe for full HTML documents from regex scripts
+// ========================================
+.htmlIframe {
+  width: 100%;
+  border: none;
+  border-radius: $radius-md;
+  margin: 8px 0;
+  display: block;
+  overflow: hidden;
+  background: #fff;
+}
+
+// ========================================
+// Quick Reply Bar
+// ========================================
+.quickReplyBar {
+  padding: 8px 16px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: var(--bg-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quickReplyBtn {
+  padding: 5px 12px;
+  border-radius: $radius-full;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: all $duration-fast $easing;
+  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.quickReplyInput {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}
+
+.quickReplyInputField {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 10px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: $font-size-sm;
+  outline: none;
+
+  &:focus {
+    border-color: var(--color-yellow);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &::placeholder {
+    color: var(--text-placeholder);
+  }
+}
+
+.quickReplySendBtn {
+  padding: 5px 12px;
+  border-radius: $radius-sm;
+  border: none;
+  background: var(--color-yellow);
+  color: #121214;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// ========================================
+// Input Bar
+// ========================================
+.inputBar {
+  padding: 10px 16px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  background: var(--bg-2);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inputField {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 9px 14px;
+  border-radius: $radius-md;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: $font-size-base;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  line-height: 1.5;
+  overflow-y: auto;
+  transition:
+    border-color $duration-fast $easing,
+    background $duration-fast $easing;
+
+  &:focus {
+    border-color: var(--color-yellow);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &::placeholder {
+    color: var(--text-placeholder);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.sendBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-md;
+  border: none;
+  background: var(--color-yellow);
+  color: #121214;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    opacity $duration-fast $easing,
+    transform $duration-fast $easing;
+
+  &:hover {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+
+  &:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ========================================
+// Import Modal
+// ========================================
+.modalOverlay {
+  --bg-2: #1c1d20;
+  --color-yellow: #faea5f;
+  --color-purple: #7660ff;
+  --color-red: #ff3f4d;
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  --text-placeholder: rgba(255, 255, 255, 0.35);
+
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn $duration-fast $easing;
+}
+
+.modalContent {
+  background: var(--bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: $radius-lg;
+  width: 480px;
+  max-width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.modalTitle {
+  font-size: $font-size-xl;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.dropZone {
+  border: 2px dashed rgba(255, 255, 255, 0.12);
+  border-radius: $radius-md;
+  padding: 36px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all $duration-fast $easing;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.02);
+
+  &:hover,
+  &.active {
+    border-color: var(--color-purple);
+    background: rgba(118, 96, 255, 0.06);
+    color: var(--text-primary);
+  }
+}
+
+.dropZoneIcon {
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+.optionalSection {
+  margin-bottom: 12px;
+}
+
+.optionalLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-secondary);
+  font-size: $font-size-sm;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all $duration-fast $easing;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+}
+
+.optionalBadge {
+  font-size: $font-size-xs;
+  color: var(--color-yellow);
+  margin-left: auto;
+}
+
+.previewSection {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: $radius-md;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.previewTitle {
+  font-size: $font-size-xs;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.previewName {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.previewStats {
+  display: flex;
+  gap: 20px;
+  font-size: $font-size-sm;
+  color: var(--text-secondary);
+}
+
+.previewStat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modalBtn {
+  padding: 8px 20px;
+  border-radius: $radius-sm;
+  border: none;
+  font-size: $font-size-base;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $duration-fast $easing;
+}
+
+.modalBtnPrimary {
+  background: var(--color-yellow);
+  color: #121214;
+
+  &:hover {
+    opacity: 0.9;
+  }
+  &:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+}
+
+.modalBtnSecondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+}
+
+// ========================================
+// Settings Drawer
+// ========================================
+.drawerOverlay {
+  --bg-2: #1c1d20;
+  --color-yellow: #faea5f;
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  --text-placeholder: rgba(255, 255, 255, 0.35);
+
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 100;
+  animation: fadeIn $duration-fast $easing;
+}
+
+.drawer {
+  --bg-2: #1c1d20;
+  --color-yellow: #faea5f;
+  --text-primary: rgba(255, 255, 255, 0.9);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  --text-placeholder: rgba(255, 255, 255, 0.35);
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 85%;
+  background: var(--bg-2);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 101;
+  padding: 28px;
+  overflow-y: auto;
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+  animation: slideIn $duration-normal $easing;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawerTitle {
+  font-size: $font-size-xl;
+  font-weight: 600;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawerCloseBtn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+  }
+}
+
+.formGroup {
+  margin-bottom: 24px;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: $radius-sm;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font-size: $font-size-base;
+  outline: none;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--color-yellow);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &::placeholder {
+    color: var(--text-placeholder);
+  }
+}
+
+.formBtn {
+  width: 100%;
+  padding: 9px;
+  border-radius: $radius-sm;
+  border: none;
+  background: var(--color-yellow);
+  color: #121214;
+  font-size: $font-size-base;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity $duration-fast $easing;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// ========================================
+// Responsive
+// ========================================
+@media (max-width: 600px) {
+  .spritePanel {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) and (min-width: 601px) {
+  .spritePanel {
+    width: $sprite-width-regular;
+  }
+}

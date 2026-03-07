@@ -1,0 +1,172 @@
+app_id: 15
+app_name: tavern
+app_display_name: Tavern
+version: "1.0.0"
+description: >
+  兼容 SillyTavern 角色卡的 AI 角色扮演对话应用。
+  
+  ## 数据结构
+  - characters/{id}.json — 角色人设文本（name、description、personality、scenario、system_prompt 等）
+  - worldbook/{id}.json — 世界书条目数组（Agent 按需读取做关键词匹配）
+  - sessions/{id}.json — 对话历史（messages 数组，含 role/content）
+  - media/{id}.json — 前端专用，禁止读取（图片、正则脚本、快捷回复）
+  - state.json — 当前活跃 characterId、sessionId、userName
+  
+  ## 角色扮演工作流（关键）
+  当你收到用户的 SEND_MESSAGE action 时：
+  1. 读取角色卡：characters/{characterId}.json
+  2. 读取会话文件：sessions/{sessionId}.json 获取完整对话历史
+  3. 读取世界书：worldbook/{characterId}.json
+  4. 用角色卡的 description、personality、scenario、system_prompt 作为你的角色扮演人设
+  5. 扫描最近对话文本匹配世界书 keys，注入命中条目的 content（constant 条目始终注入，selective 条目需同时命中 secondary_keys）
+  6. 将 {{user}} 替换为 state.json 的 userName，{{char}} 替换为角色的 name
+  6. 如果有 mes_example，参考其对话风格
+  7. 以角色身份生成回复，遵循角色人设和写作风格
+  8. 将你的回复作为新消息（role: "assistant"）追加到会话的 messages 数组
+  9. 将更新后的会话写回 sessions/{sessionId}.json
+  10. 发送 ADD_MESSAGE action，filePath 指向更新后的会话文件
+  
+  ## 重要说明
+  - 消息内容中保留 {{user}} 和 {{char}} 模板变量——前端会在显示时动态替换
+  - 角色卡的 regex_scripts 会在前端转换你的输出显示效果（如 <cm>...</cm> 标签变为样式化气泡）
+  - 遵循角色卡 description 和 mes_example 中的写作风格
+  - 始终保持角色扮演，不要跳出角色卡定义的角色
+
+displayDesc: >
+  导入 SillyTavern 角色卡，与 AI 角色进行沉浸式角色扮演对话。
+  支持情绪立绘、正则脚本渲染、世界书上下文注入和快捷回复按钮。
+
+actions:
+  - type: SEND_MESSAGE
+    name: 发送消息
+    description: >
+      用户在当前对话中发送了消息。你必须以角色身份回复：
+      1. 读取 characters/{characterId}.json 获取人设
+      2. 读取 sessions/{sessionId}.json 获取对话历史
+      3. 以角色身份生成回复
+      4. 将回复追加到会话文件
+      5. 发送 ADD_MESSAGE，附带更新后的会话文件路径
+    params:
+      - name: sessionId
+        type: string
+        description: 活跃会话 ID — 读取 sessions/{sessionId}.json
+        required: true
+      - name: content
+        type: string
+        description: 用户的消息文本
+        required: true
+      - name: characterId
+        type: string
+        description: 活跃角色 ID — 读取 characters/{characterId}.json 获取人设
+        required: true
+  - type: NEW_SESSION
+    name: 新建会话
+    description: >
+      为角色创建了新对话会话，角色卡的 first_mes 问候语已包含在内。
+    params:
+      - name: characterId
+        type: string
+        description: 角色 ID
+        required: true
+      - name: sessionId
+        type: string
+        description: 新会话 ID
+        required: true
+  - type: SWITCH_CHARACTER
+    name: 切换角色
+    description: >
+      用户切换到了另一个已导入的角色。
+    params:
+      - name: characterId
+        type: string
+        description: 切换到的角色 ID
+        required: true
+  - type: IMPORT_CHARACTER
+    name: 导入角色
+    description: >
+      用户导入了新角色卡，数据已保存到 characters/{characterId}.json。
+    params:
+      - name: characterId
+        type: string
+        description: 新导入的角色 ID
+        required: true
+  - type: CREATE_CHARACTER
+    name: 创建角色
+    description: >
+      Agent 已写入新角色 JSON 文件。前端刷新角色列表。
+    params:
+      - name: filePath
+        type: string
+        description: 新角色 JSON 文件路径
+        required: true
+  - type: UPDATE_CHARACTER
+    name: 更新角色
+    description: >
+      Agent 已更新角色 JSON 文件。前端刷新。
+    params:
+      - name: filePath
+        type: string
+        description: 更新的角色 JSON 文件路径
+        required: true
+  - type: DELETE_CHARACTER
+    name: 删除角色
+    description: >
+      Agent 已删除角色。前端刷新角色列表。
+    params:
+      - name: characterId
+        type: string
+        description: 已删除角色 ID
+        required: true
+  - type: CREATE_SESSION
+    name: 创建会话
+    description: >
+      Agent 已创建新会话 JSON 文件。前端刷新会话列表。
+    params:
+      - name: filePath
+        type: string
+        description: 新会话 JSON 文件路径
+        required: true
+  - type: ADD_MESSAGE
+    name: 添加消息
+    description: >
+      Agent 已向会话文件追加消息。前端读取更新后的会话并刷新消息列表。
+      这是 Agent 在收到 SEND_MESSAGE 后，传递角色扮演回复的方式。
+    params:
+      - name: filePath
+        type: string
+        description: 更新后的会话 JSON 文件路径
+        required: true
+  - type: DELETE_SESSION
+    name: 删除会话
+    description: >
+      Agent 已删除会话。前端刷新会话列表。
+    params:
+      - name: sessionId
+        type: string
+        description: 已删除会话 ID
+        required: true
+  - type: REFRESH_CHARACTERS
+    name: 刷新角色列表
+    description: 从云存储重新加载所有角色数据。
+    params:
+      - name: focusId
+        type: string
+        description: 刷新后聚焦的角色 ID
+        required: false
+  - type: REFRESH_SESSIONS
+    name: 刷新会话列表
+    description: 从云存储重新加载所有会话数据。
+    params:
+      - name: focusId
+        type: string
+        description: 刷新后聚焦的会话 ID
+        required: false
+  - type: REFRESH_MESSAGES
+    name: 刷新消息
+    description: 从云存储重新加载当前活跃会话的消息。
+    params: []
+  - type: SYNC_STATE
+    name: 同步状态
+    description: >
+      Agent 已更新 state.json。前端读取并应用新状态。
+    params: []

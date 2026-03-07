@@ -50,6 +50,9 @@ importers:
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@18.3.1)
+      marked:
+        specifier: ^17.0.4
+        version: 17.0.4
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -3274,6 +3277,11 @@ packages:
 
   markdown-it@14.1.0:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
+
+  marked@17.0.4:
+    resolution: {integrity: sha512-NOmVMM+KAokHMvjWmC5N/ZOvgmSWuqJB8FoYI019j4ogb/PeRMKoKIjReZ2w3376kkA8dSJIP8uD993Kxc0iRQ==}
+    engines: {node: '>= 20'}
     hasBin: true
 
   math-intrinsics@1.1.0:
@@ -8165,6 +8173,8 @@ snapshots:
       mdurl: 2.0.0
       punycode.js: 2.3.1
       uc.micro: 2.1.0
+
+  marked@17.0.4: {}
 
   math-intrinsics@1.1.0: {}
 
