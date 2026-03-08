@@ -16,3 +16,4 @@ Closes #
 - [ ] `pnpm build` passes
 - [ ] Documentation updated (if applicable)
 - [ ] Self-reviewed the code changes
+- [ ] AI code review passed (auto-triggered on PR)
