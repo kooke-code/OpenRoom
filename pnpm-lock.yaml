@@ -192,7 +192,13 @@ importers:
       framer-motion:
         specifier: ^12.34.0
         version: 12.34.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
     devDependencies:
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       '@vitest/coverage-istanbul':
         specifier: ^1.6.1
         version: 1.6.1(vitest@1.6.1(@types/node@20.19.31)(happy-dom@14.12.3)(jsdom@25.0.1)(less@4.5.1)(sass@1.97.3)(terser@5.46.0))
@@ -1901,6 +1907,9 @@ packages:
 
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@typescript-eslint/eslint-plugin@6.21.0':
     resolution: {integrity: sha512-oy9+hTPCUFpngkEZUSzbf9MxI65wbKFoQYsgPdILTfbUldp5ovUuphZVe4i30emU9M/kP+T64Di0mxl7dSw3MA==}
@@ -7237,6 +7246,10 @@ snapshots:
   '@types/use-sync-external-store@0.0.6': {}
 
   '@types/webxr@0.5.24': {}
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 20.19.31
 
   '@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)':
     dependencies:

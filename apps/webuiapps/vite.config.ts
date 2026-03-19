@@ -9,12 +9,185 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import * as fs from 'fs';
 import * as os from 'os';
 import { join } from 'path';
+import { execSync } from 'child_process';
 import { generateLogFileName, createLogMiddleware } from './src/lib/logPlugin';
+import { WebSocketServer, WebSocket } from 'ws';
 
 const LLM_CONFIG_FILE = resolve(os.homedir(), '.openroom', 'config.json');
 const SESSIONS_DIR = resolve(os.homedir(), '.openroom', 'sessions');
 const CHARACTERS_FILE = resolve(os.homedir(), '.openroom', 'characters.json');
 const MODS_FILE = resolve(os.homedir(), '.openroom', 'mods.json');
+const CLODETTE_DB = resolve(os.homedir(), 'clawd', 'data', 'clodette.db');
+
+// ============ WebSocket Bridge Plugin ============
+// Allows external agents (Claude Code, OpenClaw) to send commands into OpenRoom
+
+const BRIDGE_PORT = 3001;
+const bridgeClients = new Set<WebSocket>();
+// Pending actions from external agents, polled by the browser client
+const pendingActions: Array<{ id: string; type: string; payload: unknown }> = [];
+// Results from the browser, keyed by action id
+const actionResults = new Map<string, { resolve: (v: string) => void; timeout: NodeJS.Timeout }>();
+
+function wsBridgePlugin(): Plugin {
+  return {
+    name: 'ws-bridge',
+    configureServer(server) {
+      // WebSocket server for external agents
+      const wss = new WebSocketServer({ port: BRIDGE_PORT });
+      console.log(`[WS-BRIDGE] WebSocket bridge listening on ws://localhost:${BRIDGE_PORT}`);
+
+      wss.on('connection', (ws) => {
+        bridgeClients.add(ws);
+        console.log(`[WS-BRIDGE] Agent connected (${bridgeClients.size} total)`);
+
+        ws.on('message', (data) => {
+          try {
+            const msg = JSON.parse(data.toString());
+            const id = msg.id || `bridge-${Date.now()}`;
+            console.log(`[WS-BRIDGE] Received: ${msg.type} id=${id}`);
+
+            // Queue the action for the browser to pick up
+            pendingActions.push({ id, type: msg.type, payload: msg });
+
+            // Wait for result from browser (timeout 15s)
+            const promise = new Promise<string>((resolve) => {
+              const timeout = setTimeout(() => {
+                actionResults.delete(id);
+                resolve(JSON.stringify({ id, success: false, error: 'timeout' }));
+              }, 15000);
+              actionResults.set(id, { resolve, timeout });
+            });
+
+            promise.then((result) => {
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(result);
+              }
+            });
+          } catch (err) {
+            ws.send(JSON.stringify({ error: 'invalid JSON' }));
+          }
+        });
+
+        ws.on('close', () => {
+          bridgeClients.delete(ws);
+          console.log(`[WS-BRIDGE] Agent disconnected (${bridgeClients.size} total)`);
+        });
+      });
+
+      // HTTP endpoints for the browser to poll/push
+      // GET /api/bridge/poll — browser fetches pending actions
+      server.middlewares.use('/api/bridge/poll', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        const actions = pendingActions.splice(0, pendingActions.length);
+        res.end(JSON.stringify(actions));
+      });
+
+      // POST /api/bridge/result — browser sends back action results
+      server.middlewares.use('/api/bridge/result', (req, res) => {
+        if (req.method !== 'POST') {
+          res.writeHead(405);
+          res.end();
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', () => {
+          try {
+            const body = JSON.parse(Buffer.concat(chunks).toString());
+            const { id, result } = body;
+            const pending = actionResults.get(id);
+            if (pending) {
+              clearTimeout(pending.timeout);
+              actionResults.delete(id);
+              pending.resolve(JSON.stringify({ id, success: true, data: result }));
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ ok: true }));
+          } catch {
+            res.writeHead(400);
+            res.end(JSON.stringify({ error: 'invalid body' }));
+          }
+        });
+      });
+
+      // GET /api/bridge/status — health check
+      server.middlewares.use('/api/bridge/status', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(
+          JSON.stringify({
+            bridge: 'active',
+            port: BRIDGE_PORT,
+            connectedAgents: bridgeClients.size,
+            pendingActions: pendingActions.length,
+          }),
+        );
+      });
+
+      // POST /api/bridge/event — write an event to clodette.db agent_events table
+      server.middlewares.use('/api/bridge/event', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        if (req.method !== 'POST') {
+          res.writeHead(405);
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', () => {
+          try {
+            const body = JSON.parse(Buffer.concat(chunks).toString());
+            const { agent, event_type, target, app, payload } = body;
+            if (!agent || !event_type) {
+              res.writeHead(400);
+              res.end(JSON.stringify({ error: 'Missing required fields: agent, event_type' }));
+              return;
+            }
+            const now = new Date().toISOString();
+            const payloadStr = payload ? JSON.stringify(payload).replace(/'/g, "''") : '';
+            const sql = `INSERT INTO agent_events (agent, event_type, target, app, payload, created_at) VALUES ('${agent.replace(/'/g, "''")}', '${event_type.replace(/'/g, "''")}', '${(target || '').replace(/'/g, "''")}', '${(app || '').replace(/'/g, "''")}', '${payloadStr}', '${now}');`;
+            execSync(`sqlite3 '${CLODETTE_DB}' "${sql}"`, { timeout: 5000 });
+            res.writeHead(200);
+            res.end(JSON.stringify({ ok: true, created_at: now }));
+          } catch (err) {
+            res.writeHead(500);
+            res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+          }
+        });
+      });
+
+      // GET /api/bridge/events — read recent events from agent_events table
+      server.middlewares.use('/api/bridge/events', (req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        if (req.method !== 'GET') {
+          res.writeHead(405);
+          res.end(JSON.stringify({ error: 'Method not allowed' }));
+          return;
+        }
+        try {
+          const url = new URL(req.url || '', 'http://localhost');
+          const agent = url.searchParams.get('agent') || '';
+          const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+          const since = url.searchParams.get('since') || '';
+
+          let where = 'WHERE 1=1';
+          if (agent) where += ` AND agent='${agent.replace(/'/g, "''")}'`;
+          if (since) where += ` AND created_at>'${since.replace(/'/g, "''")}'`;
+          const sql = `SELECT * FROM agent_events ${where} ORDER BY created_at DESC LIMIT ${limit};`;
+          const raw = execSync(`sqlite3 -json '${CLODETTE_DB}' "${sql}"`, { timeout: 5000 })
+            .toString()
+            .trim();
+          const events = raw ? JSON.parse(raw) : [];
+          res.writeHead(200);
+          res.end(JSON.stringify(events));
+        } catch (err) {
+          res.writeHead(500);
+          res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+        }
+      });
+    },
+  };
+}
 
 /** LLM config persistence plugin — reads/writes config to ~/.openroom/config.json */
 function llmConfigPlugin(): Plugin {
@@ -263,29 +436,41 @@ function llmProxyPlugin(): Plugin {
           res.end(JSON.stringify({ error: 'Missing X-LLM-Target-URL header' }));
           return;
         }
+        console.log('[LLM-PROXY] Target:', targetUrl, 'Method:', req.method);
+        console.log(
+          '[LLM-PROXY] Headers:',
+          JSON.stringify(
+            Object.fromEntries(
+              Object.entries(req.headers).filter(([k]) => !k.startsWith('sec-') && k !== 'cookie'),
+            ),
+          ),
+        );
         const chunks: Buffer[] = [];
         req.on('data', (chunk: Buffer) => chunks.push(chunk));
         req.on('end', async () => {
           try {
             const body = Buffer.concat(chunks).toString();
-            const headers: Record<string, string> = {};
-            // Forward all headers except host/connection/internal ones
-            const skipKeys = new Set(['host', 'connection', 'content-length', 'x-llm-target-url']);
+            const headers: Record<string, string> = {
+              'content-type': 'application/json',
+            };
+            // Only forward essential auth headers, skip CF/tunnel headers
+            const allowKeys = new Set(['authorization', 'x-api-key', 'anthropic-version']);
             for (const [key, val] of Object.entries(req.headers)) {
               if (typeof val !== 'string') continue;
-              if (skipKeys.has(key)) continue;
               if (key.startsWith('x-custom-')) {
                 headers[key.replace('x-custom-', '')] = val;
-              } else {
+              } else if (allowKeys.has(key)) {
                 headers[key] = val;
               }
             }
 
+            console.log('[LLM-PROXY] Forwarding to:', targetUrl);
             const fetchRes = await fetch(targetUrl, {
               method: req.method || 'POST',
               headers,
               body,
             });
+            console.log('[LLM-PROXY] Response status:', fetchRes.status);
 
             res.writeHead(fetchRes.status, {
               'Content-Type': fetchRes.headers.get('Content-Type') || 'application/json',
@@ -304,6 +489,92 @@ function llmProxyPlugin(): Plugin {
                 res.end();
               };
               pump().catch(() => res.end());
+            } else {
+              const text = await fetchRes.text();
+              res.end(text);
+            }
+          } catch (err: unknown) {
+            res.writeHead(502, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+          }
+        });
+      });
+    },
+  };
+}
+
+/** Generic local service proxy — forwards requests to localhost services, bypassing CORS */
+function localServiceProxyPlugin(): Plugin {
+  return {
+    name: 'local-service-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/local-proxy', async (req, res) => {
+        const targetUrl = req.headers['x-target-url'] as string;
+        if (!targetUrl) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Missing X-Target-URL header' }));
+          return;
+        }
+
+        // Security: only allow proxying to localhost
+        if (
+          !targetUrl.startsWith('http://localhost:') &&
+          !targetUrl.startsWith('http://127.0.0.1:')
+        ) {
+          res.writeHead(403, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Forbidden: only localhost targets allowed' }));
+          return;
+        }
+
+        console.log(`[LOCAL-PROXY] ${req.method} -> ${targetUrl}`);
+
+        const chunks: Buffer[] = [];
+        req.on('data', (chunk: Buffer) => chunks.push(chunk));
+        req.on('end', async () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const headers: Record<string, string> = {};
+            // Forward content-type and accept headers
+            if (req.headers['content-type'])
+              headers['content-type'] = req.headers['content-type'] as string;
+            if (req.headers['accept']) headers['accept'] = req.headers['accept'] as string;
+            if (req.headers['authorization'])
+              headers['authorization'] = req.headers['authorization'] as string;
+            // Forward any x-custom- prefixed headers (strip prefix)
+            for (const [key, val] of Object.entries(req.headers)) {
+              if (typeof val !== 'string') continue;
+              if (key.startsWith('x-custom-')) {
+                headers[key.replace('x-custom-', '')] = val;
+              }
+            }
+
+            const fetchOpts: RequestInit = {
+              method: req.method || 'GET',
+              headers,
+            };
+            // Only include body for methods that support it
+            if (req.method !== 'GET' && req.method !== 'HEAD' && body.length > 0) {
+              fetchOpts.body = body;
+            }
+
+            const fetchRes = await fetch(targetUrl, fetchOpts);
+
+            // Forward response headers
+            const resHeaders: Record<string, string> = {
+              'Content-Type': fetchRes.headers.get('Content-Type') || 'application/octet-stream',
+            };
+
+            res.writeHead(fetchRes.status, resHeaders);
+
+            if (fetchRes.body) {
+              const reader = (fetchRes.body as ReadableStream<Uint8Array>).getReader();
+              let done = false;
+              while (!done) {
+                const result = await reader.read();
+                done = result.done;
+                if (!done) res.write(result.value);
+              }
+              res.end();
             } else {
               const text = await fetchRes.text();
               res.end(text);
@@ -391,6 +662,8 @@ const config = ({ mode }: ConfigEnv): UserConfigExport => {
   };
   const skipLegacy = env.VITE_SKIP_LEGACY === 'true';
   const plugins: PluginOption[] = [
+    wsBridgePlugin(),
+    localServiceProxyPlugin(),
     llmConfigPlugin(),
     sessionDataPlugin(),
     logServerPlugin(),
@@ -452,6 +725,7 @@ const config = ({ mode }: ConfigEnv): UserConfigExport => {
     server: {
       host: true,
       port: 3000,
+      allowedHosts: ['openroom.markt30a.com'],
     },
     define: {
       __APP__: JSON.stringify(env.APP_ENVIRONMENT),

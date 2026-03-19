@@ -1,0 +1,606 @@
+// EscalationCenter — Dark theme styles
+
+$accent: #58a6ff;
+$accent-hover: #79c0ff;
+$accent-light: rgba(88, 166, 255, 0.12);
+
+$bg-primary: #0d1117;
+$bg-secondary: #161b22;
+$bg-tertiary: #1c2128;
+$bg-hover: rgba(255, 255, 255, 0.06);
+
+$border-color: #30363d;
+$border-light: #21262d;
+
+$text-primary: #e6edf3;
+$text-secondary: #8b949e;
+$text-muted: #6e7681;
+
+$pending-color: #d29922;
+$pending-bg: rgba(210, 153, 34, 0.15);
+$pending-border: rgba(210, 153, 34, 0.4);
+
+$resolved-color: #3fb950;
+$resolved-bg: rgba(63, 185, 80, 0.15);
+$resolved-border: rgba(63, 185, 80, 0.4);
+
+$error-color: #f85149;
+
+// ============ Root ============
+.app {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: $bg-primary;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+// ============ Stats Bar ============
+.statsBar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-light;
+  background: $bg-secondary;
+  flex-shrink: 0;
+}
+
+.statCard {
+  flex: 1;
+  padding: 10px 12px;
+  background: $bg-tertiary;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  text-align: center;
+
+  &.statPending {
+    border-color: $pending-border;
+  }
+
+  &.statResolved {
+    border-color: $resolved-border;
+  }
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  .statPending & {
+    color: $pending-color;
+  }
+
+  .statResolved & {
+    color: $resolved-color;
+  }
+}
+
+.pendingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $pending-color;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.statLabel {
+  font-size: 11px;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+// ============ Toolbar ============
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid $border-light;
+  background: $bg-primary;
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.tabs {
+  display: flex;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: $text-secondary;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+
+  &:hover {
+    color: $accent;
+  }
+
+  &.active {
+    color: $accent;
+    border-bottom-color: $accent;
+  }
+}
+
+.tabBadge {
+  font-size: 11px;
+  font-weight: 600;
+  background: $pending-color;
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.tabCount {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchArea {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: $bg-tertiary;
+  border: 1px solid $border-light;
+  border-radius: 6px;
+  padding: 0 8px;
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: $accent;
+  }
+}
+
+.searchIcon {
+  display: flex;
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  background: none;
+  border: none;
+  outline: none;
+  color: $text-primary;
+  font-size: 13px;
+  padding: 6px 0;
+  width: 160px;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: $text-secondary;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+// ============ Escalation List ============
+.list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 3px;
+  }
+}
+
+// ============ Escalation Card ============
+.escalationCard {
+  margin: 0 12px 8px;
+  border: 1px solid $border-light;
+  border-radius: 8px;
+  background: $bg-secondary;
+  overflow: hidden;
+  transition: border-color 0.15s;
+
+  &.cardPending {
+    border-left: 3px solid $pending-color;
+  }
+
+  &.cardResolved {
+    border-left: 3px solid $resolved-color;
+  }
+
+  &:hover {
+    border-color: $border-color;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: $bg-hover;
+  }
+}
+
+.cardHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cardHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.statusBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+
+  &.badgePending {
+    background: $pending-bg;
+    color: $pending-color;
+  }
+
+  &.badgeResolved {
+    background: $resolved-bg;
+    color: $resolved-color;
+  }
+}
+
+.cardId {
+  font-size: 12px;
+  color: $text-muted;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.cardSource {
+  font-size: 12px;
+  color: $text-secondary;
+  background: $bg-tertiary;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.cardTime {
+  font-size: 12px;
+  color: $text-muted;
+}
+
+.expandIcon {
+  display: flex;
+  color: $text-muted;
+  transition: transform 0.2s;
+}
+
+.cardMessage {
+  padding: 0 14px 12px;
+  font-size: 13px;
+  color: $text-primary;
+  line-height: 1.5;
+  // Show first 3 lines
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ============ Expanded Section ============
+.cardExpanded {
+  border-top: 1px solid $border-light;
+  padding: 12px 14px;
+}
+
+.cardContext {
+  margin-bottom: 12px;
+}
+
+.contextLabel,
+.resolutionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.contextBody {
+  font-size: 13px;
+  color: $text-secondary;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: $bg-tertiary;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid $border-light;
+}
+
+.cardResolution {
+  margin-bottom: 12px;
+}
+
+.resolutionLabel {
+  color: $resolved-color;
+}
+
+.resolutionBody {
+  font-size: 13px;
+  color: $text-primary;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: $resolved-bg;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid $resolved-border;
+}
+
+// ============ Resolve UI ============
+.resolveBtn {
+  padding: 6px 16px;
+  background: $pending-bg;
+  color: $pending-color;
+  border: 1px solid $pending-border;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: $pending-color;
+    color: #fff;
+  }
+}
+
+.resolveArea {
+  margin-top: 8px;
+}
+
+.resolveInput {
+  width: 100%;
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  color: $text-primary;
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 70px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: $accent;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.resolveActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.cancelBtn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid $border-color;
+  color: $text-secondary;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: $accent;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: $accent-hover;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.resolveHint {
+  font-size: 11px;
+  color: $text-muted;
+  margin-top: 4px;
+  text-align: right;
+}
+
+// ============ Empty / Loading ============
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 48px 32px;
+  text-align: center;
+  min-height: 200px;
+
+  p {
+    font-size: 14px;
+    margin: 8px 0 0;
+    color: $text-secondary;
+    line-height: 1.5;
+  }
+}
+
+.emptyIcon {
+  color: $text-muted;
+  margin-bottom: 8px;
+
+  svg {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.emptySubtext {
+  font-size: 12px !important;
+  color: $text-muted !important;
+}
+
+.errorText {
+  color: $error-color !important;
+}
+
+.retryBtn {
+  margin-top: 12px;
+  padding: 6px 16px;
+  background: $accent;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: $accent-hover;
+  }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid $border-color;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============ Responsive ============
+@media (max-width: 600px) {
+  .statsBar {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+
+  .statCard {
+    min-width: calc(50% - 6px);
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  .escalationCard {
+    margin: 0 8px 6px;
+  }
+}

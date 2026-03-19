@@ -1,0 +1,438 @@
+// MissionControl - Health Monitoring Dashboard
+// Dark theme with green/red status indicators
+
+$bg-primary: #0d1117;
+$bg-secondary: #161b22;
+$bg-card: #1c2128;
+$bg-hover: rgba(255, 255, 255, 0.06);
+
+$border-color: #30363d;
+$border-light: #21262d;
+
+$text-primary: #e6edf3;
+$text-secondary: #8b949e;
+$text-muted: #6e7681;
+
+$green: #22c55e;
+$green-dim: rgba(34, 197, 94, 0.15);
+$red: #ef4444;
+$red-dim: rgba(239, 68, 68, 0.15);
+$yellow: #eab308;
+$yellow-dim: rgba(234, 179, 8, 0.15);
+$blue: #58a6ff;
+$blue-dim: rgba(88, 166, 255, 0.12);
+
+$font-mono:
+  'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Menlo, Monaco, Consolas, monospace;
+
+// Container
+.missionControl {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: $bg-primary;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+// Header
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid $border-light;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  font-family: $font-mono;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.ok {
+    background: $green;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  }
+  &.error {
+    background: $red;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+  }
+  &.warning {
+    background: $yellow;
+    box-shadow: 0 0 6px rgba(234, 179, 8, 0.5);
+  }
+  &.unknown {
+    background: $text-muted;
+  }
+}
+
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid $border-color;
+  color: $text-secondary;
+  font-size: 11px;
+  font-family: $font-mono;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+    border-color: $text-muted;
+  }
+
+  &.spinning svg {
+    animation: spin 1s linear infinite;
+  }
+}
+
+// System Stats Bar
+.systemStats {
+  display: flex;
+  gap: 2px;
+  padding: 10px 16px;
+  border-bottom: 1px solid $border-light;
+  flex-shrink: 0;
+  background: $bg-secondary;
+}
+
+.gauge {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.gaugeLabel {
+  font-size: 10px;
+  font-family: $font-mono;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gaugeValue {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: $font-mono;
+
+  &.ok {
+    color: $green;
+  }
+  &.warning {
+    color: $yellow;
+  }
+  &.critical {
+    color: $red;
+  }
+}
+
+.gaugeBar {
+  width: 100%;
+  height: 3px;
+  background: $border-color;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gaugeBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+
+  &.ok {
+    background: $green;
+  }
+  &.warning {
+    background: $yellow;
+  }
+  &.critical {
+    background: $red;
+  }
+}
+
+// Services Row
+.servicesRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid $border-light;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.servicesLabel {
+  font-size: 10px;
+  font-family: $font-mono;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+
+.serviceDot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-family: $font-mono;
+  color: $text-secondary;
+  background: $bg-card;
+  border: 1px solid $border-color;
+
+  &.up {
+    border-color: rgba(34, 197, 94, 0.3);
+    .serviceIndicator {
+      background: $green;
+    }
+  }
+
+  &.down {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: $red-dim;
+    color: $red;
+    .serviceIndicator {
+      background: $red;
+    }
+  }
+}
+
+.serviceIndicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+// Main Grid
+.mainContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.jobGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.columnHeader {
+  font-size: 11px;
+  font-family: $font-mono;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px 8px;
+  border-bottom: 1px solid $border-light;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.columnCount {
+  font-size: 10px;
+  color: $text-muted;
+  background: $bg-card;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+// Job Card
+.jobCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: $bg-card;
+  border: 1px solid $border-color;
+  transition: all 0.15s;
+  cursor: default;
+
+  &:hover {
+    background: $bg-hover;
+    border-color: $text-muted;
+  }
+
+  &.error {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: $red-dim;
+  }
+
+  &.stale {
+    border-color: rgba(234, 179, 8, 0.3);
+    background: $yellow-dim;
+  }
+}
+
+.jobStatus {
+  margin-top: 3px;
+}
+
+.jobInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.jobName {
+  font-size: 12px;
+  font-weight: 500;
+  font-family: $font-mono;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jobMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.jobTime {
+  font-size: 10px;
+  font-family: $font-mono;
+  color: $text-secondary;
+}
+
+.jobExitCode {
+  font-size: 10px;
+  font-family: $font-mono;
+  color: $red;
+  background: $red-dim;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+// Last updated
+.lastUpdated {
+  font-size: 10px;
+  font-family: $font-mono;
+  color: $text-muted;
+  padding: 0 4px;
+}
+
+// Loading / Error States
+.loadingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 12px;
+  color: $text-secondary;
+  font-family: $font-mono;
+  font-size: 13px;
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+  padding: 32px;
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: $red;
+  font-family: $font-mono;
+}
+
+.errorMessage {
+  font-size: 12px;
+  color: $text-secondary;
+  font-family: $font-mono;
+  max-width: 400px;
+}
+
+.retryBtn {
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid $border-color;
+  color: $text-secondary;
+  font-size: 12px;
+  font-family: $font-mono;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+// Spinner
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid $border-color;
+  border-top-color: $blue;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive
+@media (max-width: 550px) {
+  .jobGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .systemStats {
+    flex-wrap: wrap;
+  }
+
+  .gauge {
+    min-width: 80px;
+  }
+}

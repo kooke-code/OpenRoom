@@ -1,23 +1,25 @@
 import React, { useState, useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 import {
   MessageCircle,
-  Twitter,
-  Music,
-  BookOpen,
-  Image,
-  Circle,
-  LayoutGrid,
-  Mail,
-  Crown,
-  Shield,
-  Newspaper,
   Radio,
   Video,
   VideoOff,
   X,
+  Activity,
+  TrendingUp,
+  Mail,
+  AlertTriangle,
+  Building2,
+  Search,
+  BookOpen,
+  Briefcase,
+  Rocket,
+  HardDrive,
+  ShieldAlert,
   type LucideIcon,
 } from 'lucide-react';
 import ChatPanel from '../ChatPanel';
+import BridgeConnector from '../BridgeConnector';
 import AppWindow from '../AppWindow';
 import { getWindows, subscribe, openWindow } from '@/lib/windowManager';
 import { getDesktopApps } from '@/lib/appRegistry';
@@ -33,23 +35,24 @@ function useWindows() {
 
 /** Lucide icon name to component mapping */
 const ICON_MAP: Record<string, LucideIcon> = {
-  Twitter,
-  Music,
-  BookOpen,
-  Image,
-  Circle,
-  LayoutGrid,
-  Mail,
-  Crown,
-  Shield,
-  Newspaper,
   Radio,
   MessageCircle,
+  Activity,
+  ShieldAlert,
+  TrendingUp,
+  Mail,
+  AlertTriangle,
+  Building2,
+  Search,
+  BookOpen,
+  Briefcase,
+  Rocket,
+  HardDrive,
 };
 
 const DESKTOP_APPS = getDesktopApps().map((app) => ({
   ...app,
-  IconComp: ICON_MAP[app.icon] || Circle,
+  IconComp: ICON_MAP[app.icon] || MessageCircle,
 }));
 
 const VIDEO_WALLPAPER =
@@ -210,6 +213,9 @@ const Shell: React.FC = () => {
 
       {/* Chat Panel — always mounted to preserve chat history */}
       <ChatPanel onClose={() => setChatOpen(false)} visible={chatOpen} />
+
+      {/* Bridge — connects external agents (Claude Code, OpenClaw) */}
+      <BridgeConnector />
 
       <div ref={barRef} className={`${styles.bottomBar} ${chatOpen ? styles.chatOpen : ''}`}>
         <button

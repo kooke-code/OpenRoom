@@ -1,0 +1,672 @@
+// StoreIntelligence — Dark theme with country-colored accents
+
+// Color scheme
+$accent: #58a6ff;
+$accent-hover: #79c0ff;
+$accent-bg: rgba(88, 166, 255, 0.1);
+
+$bg-primary: #0d1117;
+$bg-secondary: #161b22;
+$bg-tertiary: #1c2128;
+$bg-hover: rgba(255, 255, 255, 0.06);
+$bg-card: #161b22;
+
+$border-color: #30363d;
+$border-light: #21262d;
+
+$text-primary: #e6edf3;
+$text-secondary: #8b949e;
+$text-muted: #6e7681;
+
+$error-color: #f85149;
+$error-bg: rgba(248, 81, 73, 0.1);
+$success-color: #3fb950;
+
+$radius: 8px;
+$radius-sm: 6px;
+
+// ============ Global Container ============
+.app {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: $bg-primary;
+  color: $text-primary;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+
+// ============ Top Bar ============
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid $border-light;
+  background: $bg-secondary;
+  flex-shrink: 0;
+}
+
+.topBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appIcon {
+  display: flex;
+  align-items: center;
+  color: $accent;
+}
+
+.appTitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: $text-primary;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.tab {
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: $text-primary;
+    background: $bg-hover;
+  }
+
+  &.tabActive {
+    color: $accent;
+    background: $accent-bg;
+  }
+}
+
+// ============ Search Bar ============
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid $border-light;
+  background: $bg-primary;
+  flex-shrink: 0;
+}
+
+.searchForm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  color: $text-primary;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15);
+  }
+}
+
+.marketFilter {
+  padding: 8px 12px;
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  color: $text-primary;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  min-width: 130px;
+
+  option {
+    background: $bg-secondary;
+    color: $text-primary;
+  }
+
+  &:focus {
+    border-color: $accent;
+  }
+}
+
+.uploadBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  color: $text-secondary;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: $accent;
+    border-color: $accent;
+    background: $accent-bg;
+  }
+}
+
+// ============ Store Grid ============
+.storeGrid {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  align-content: start;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $border-color;
+    border-radius: 3px;
+  }
+}
+
+// ============ Store Card ============
+.storeCard {
+  background: $bg-card;
+  border: 1px solid $border-light;
+  border-left: 3px solid #6b7280;
+  border-radius: $radius;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+
+  &:hover {
+    background: $bg-tertiary;
+    border-color: $border-color;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.cardFlag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.cardName {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardNumber {
+  font-size: 11px;
+  color: $text-muted;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+.cardBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cardCity {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.cardDistrict {
+  font-size: 11px;
+  color: $text-muted;
+  padding: 1px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.cardDM {
+  font-size: 11px;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+.cardArrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  .storeCard:hover & {
+    opacity: 1;
+  }
+}
+
+// ============ Store Detail Panel ============
+.detailOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detailPanel {
+  width: 360px;
+  max-width: 90%;
+  height: 100%;
+  background: $bg-secondary;
+  border-top: 3px solid $accent;
+  border-left: 1px solid $border-color;
+  overflow-y: auto;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.detailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid $border-light;
+}
+
+.detailTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: $text-primary;
+  }
+}
+
+.detailFlag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.detailNumber {
+  font-size: 12px;
+  color: $text-muted;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+.detailClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: $text-secondary;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: $bg-hover;
+    color: $text-primary;
+  }
+}
+
+.detailGrid {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detailLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detailValue {
+  font-size: 13px;
+  color: $text-primary;
+}
+
+// ============ Stats Bar ============
+.statsBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  border-top: 1px solid $border-light;
+  background: $bg-secondary;
+  flex-shrink: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.statItem {
+  font-size: 11px;
+  color: $text-secondary;
+
+  strong {
+    color: $text-primary;
+    font-weight: 600;
+  }
+}
+
+// ============ RAG Tab ============
+.ragTab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.ragDescription {
+  font-size: 12px;
+  color: $text-secondary;
+  margin-bottom: 12px;
+}
+
+.ragSearchForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.ragInput {
+  flex: 1;
+  padding: 10px 14px;
+  background: $bg-tertiary;
+  border: 1px solid $border-color;
+  border-radius: $radius;
+  color: $text-primary;
+  font-size: 13px;
+  outline: none;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  &:focus {
+    border-color: $accent;
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15);
+  }
+}
+
+.ragSearchBtn {
+  padding: 10px 20px;
+  background: $accent;
+  color: #fff;
+  border: none;
+  border-radius: $radius;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: $accent-hover;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.ragResults {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ragResultItem {
+  padding: 12px;
+  background: $bg-card;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+}
+
+.ragResultHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.ragResultTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: $accent;
+}
+
+.ragResultScore {
+  font-size: 11px;
+  color: $success-color;
+  font-weight: 500;
+  padding: 1px 6px;
+  background: rgba(63, 185, 80, 0.1);
+  border-radius: 3px;
+}
+
+.ragResultSnippet {
+  font-size: 12px;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.ragResultSource {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+// ============ ITSM Tab ============
+.itsmTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.itsmPlaceholder {
+  text-align: center;
+  max-width: 400px;
+
+  svg {
+    color: $text-muted;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-secondary;
+    line-height: 1.5;
+    margin: 0 0 16px;
+  }
+}
+
+.itsmStats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.itsmStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.itsmStatValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: $accent;
+}
+
+.itsmStatLabel {
+  font-size: 10px;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.itsmNote {
+  font-size: 11px !important;
+  color: $text-muted !important;
+  font-style: italic;
+}
+
+// ============ Shared States ============
+.loadingState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: $text-secondary;
+  font-size: 13px;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px;
+  color: $text-muted;
+  font-size: 13px;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    opacity: 0.5;
+  }
+}
+
+.errorBanner {
+  padding: 10px 16px;
+  background: $error-bg;
+  border-bottom: 1px solid rgba(248, 81, 73, 0.2);
+  color: $error-color;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid $border-color;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

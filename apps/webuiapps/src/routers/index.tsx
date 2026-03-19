@@ -14,6 +14,17 @@ const Gomoku = lazy(() => import('@/pages/Gomoku'));
 const Chess = lazy(() => import('@/pages/Chess'));
 const EvidenceVault = lazy(() => import('@/pages/EvidenceVault'));
 const CyberNews = lazy(() => import('@/pages/CyberNews'));
+const MissionControl = lazy(() => import('@/pages/MissionControl'));
+const OperationsDashboard = lazy(() => import('@/pages/OperationsDashboard'));
+const TradingTerminal = lazy(() => import('@/pages/TradingTerminal'));
+const EmailHub = lazy(() => import('@/pages/EmailHub'));
+const EscalationCenter = lazy(() => import('@/pages/EscalationCenter'));
+const StoreIntelligence = lazy(() => import('@/pages/StoreIntelligence'));
+const MarketResearch = lazy(() => import('@/pages/MarketResearch'));
+const KnowledgeHub = lazy(() => import('@/pages/KnowledgeHub'));
+const CompanyDashboard = lazy(() => import('@/pages/CompanyDashboard'));
+const VentureTracker = lazy(() => import('@/pages/VentureTracker'));
+const NasStorage = lazy(() => import('@/pages/NasStorage'));
 
 // All sub-pages should use lazy loading
 const routerList: RouteObject[] = [
@@ -102,6 +113,94 @@ const routerList: RouteObject[] = [
     element: (
       <React.Suspense>
         <CyberNews />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/missionControl',
+    element: (
+      <React.Suspense>
+        <MissionControl />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/operationsDashboard',
+    element: (
+      <React.Suspense>
+        <OperationsDashboard />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/tradingTerminal',
+    element: (
+      <React.Suspense>
+        <TradingTerminal />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/emailHub',
+    element: (
+      <React.Suspense>
+        <EmailHub />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/escalationCenter',
+    element: (
+      <React.Suspense>
+        <EscalationCenter />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/storeIntelligence',
+    element: (
+      <React.Suspense>
+        <StoreIntelligence />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/marketResearch',
+    element: (
+      <React.Suspense>
+        <MarketResearch />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/knowledgeHub',
+    element: (
+      <React.Suspense>
+        <KnowledgeHub />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/companyDashboard',
+    element: (
+      <React.Suspense>
+        <CompanyDashboard />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/ventureTracker',
+    element: (
+      <React.Suspense>
+        <VentureTracker />
+      </React.Suspense>
+    ),
+  },
+  {
+    path: '/nasStorage',
+    element: (
+      <React.Suspense>
+        <NasStorage />
       </React.Suspense>
     ),
   },

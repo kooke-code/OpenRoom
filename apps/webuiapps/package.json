@@ -16,9 +16,11 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "framer-motion": "^12.34.0"
+    "framer-motion": "^12.34.0",
+    "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/ws": "^8.18.1",
     "@vitest/coverage-istanbul": "^1.6.1",
     "@vitest/coverage-v8": "^1.6.1",
     "happy-dom": "^14.0.0",
